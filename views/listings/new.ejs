@@ -1,0 +1,82 @@
+<% layout("/layouts/boilerplate") -%>
+<body>
+  <div class="row-12">
+    <div class="col-8 offset-2">
+      <h3>Create New property.</h3>
+
+      <form action="/listings" method="POST" novalidate class="needs-validation">
+        <div class="mb-3">
+          <label for="title" class="form-label">Title</label>
+          <input
+            class="form-control"
+            name="listings[title]"
+            placeholder="Enter title"
+            type="text"
+            required
+          />
+          <div class="invalid-feedback">Title should be valid</div>
+        </div>
+        <div class="mb-3">
+          <label for="description" class="form-label">description</label>
+          <input
+            class="form-control"
+            name="listings[description]"
+            placeholder="Enter description"
+            type="text"
+            required
+          />
+          <div class="invalid-feedback">Plese enter short description</div>
+        </div>
+        <div class="mb-3">
+          <label for="image" class="form-label">image</label>
+          <input
+            class="form-control"
+            type="text"
+            name="listings[image][url]"
+            placeholder="Enter image url"
+          />
+           <div class="valid-feedback">Listing images helps </div>
+        </div>
+        <div class="row">
+          <div class="mb-3 col-8">
+            <label for="country" class="form-label">country</label>
+            <input
+              class="form-control"
+              type="text"
+              name="listings[country]"
+              placeholder="Enter country"
+              required
+            />
+          <div class="invalid-feedback">Country name should be valid</div>
+          </div>
+          <div class="mb-3 col-3">
+            <label for="price" class="form-label">price</label>
+            <input
+              name="listings[price]"
+              class="form-control"
+              placeholder="Enter price"
+              type="number"
+              required
+            />
+           <div class="invalid-feedback">Price should be valid</div>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="location" class="form-label">location</label>
+          <input
+            type="text"
+            class="form-control"
+            name="listings[location]"
+            placeholder="Enter location"
+            type="text"
+            required
+          />
+          <div class="invalid-feedback">Location should be valid</div>
+        </div>
+
+        <button type="submit" class="btn btn-dark">Create!</button>
+      </form>
+    </div>
+  </div>
+</body>
