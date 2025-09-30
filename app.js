@@ -1,13 +1,15 @@
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
-const Listing = require("./models/listing.js")
+const Listing = require("./models/listing.js");
 const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const ExpressError = require("./utils/ExpressError.js")
 const wrapAsync = require("./utils/wrapAsync.js");
 const { listingSchema } = require("./schema.js");
+const Review = require("./models/reviews.js");
+
 
 
 let mongo_url = "mongodb://127.0.0.1:27017/airbnb";
@@ -35,20 +37,22 @@ app.listen(4090, () => {
     console.log("app is listening to port 4090..");
 });
 
-const validateListing = (req, res,next) => {
-    let {error} = listingSchema.validate(req.body);
+const validateListing = (req, res, next) => {
+    let { error } = listingSchema.validate(req.body);
     if (error) {
-        let errMsg = error.details.map((el)=>el.message).join(","); 
+        let errMsg = error.details.map((el) => el.message).join(",");
         throw new ExpressError(400, error);
-    }else{
-        next(); 
+    } else {
+        next();
     }
     // next();
 }
 
-app.get("/", (req, res) => {
-    res.send('<p>Home Page Of Airbnb</p>');
-});
+app.get("/", wrapAsync(
+    async (req, res) => {
+        let allListings = await Listing.find({});
+        res.render("./listings/index.ejs", { allListings });
+    }));
 
 app.get("/listings",
     wrapAsync(
@@ -57,7 +61,7 @@ app.get("/listings",
             res.render("./listings/index.ejs", { allListings });
         }));
 
-app.get("/listings/new",(req, res) => {
+app.get("/listings/new", (req, res) => {
     res.render("./listings/new.ejs");
 });
 
@@ -72,7 +76,7 @@ app.post("/listings", validateListing, wrapAsync(async (req, res) => {
     const newListing = new Listing(listing);
     await newListing.save();
     res.redirect("/listings");
-}));   
+}));
 
 app.get("/listings/:id/edit",
     wrapAsync(
@@ -85,7 +89,7 @@ app.get("/listings/:id/edit",
         }));
 
 //edit route
-app.put("/listings/:id",validateListing,
+app.put("/listings/:id", validateListing,
     wrapAsync(
         async (req, res) => {
             let { id } = req.params;
@@ -114,11 +118,29 @@ app.delete("/listing/:id",
     )
 );
 
+//review route
+//post route
+app.post("/listings/:id/reviews",
+    // wrapAsync(
+        async (req, res) => {
+            let listing = await Listing.findById(req.params.id);
+            let newReview = new Review(req.body.review);
+            await newReview.save();
+            listing.reviews.push(newReview._id);
+
+            await listing.save();
+
+            console.log("new reivew saved");
+            res.redirect(`/listings/${listing._id}`);
+        }
+    // )
+);
+
 
 app.all("*", (req, res, next) => {
-    next(new ExpressError(404, 'Page Not Found'));
-    // app.render("./listings/error.ejs");
-});
+        next(new ExpressError(404, 'Page Not Found'));
+        // app.render("./listings/error.ejs");
+    });
 
 
 app.use((err, req, res, next) => {
